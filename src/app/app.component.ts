@@ -1,94 +1,66 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
-import {FormControl, FormGroup, Validators} from "@angular/forms";
-import {reject} from "q";
+import {Component, OnInit} from '@angular/core';
+import {CarsService} from "./cars.service";
 
+
+interface Cars {
+  name: string;
+  color: string;
+  id: number
+}
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html',
+  templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit {
-  // @ViewChild('form') form: NgForm;
-  //
-  //
-  // defaultAnswer = 'no';
-  // defaultCountry = 'ua';
-  // formData = {};
-  // isSubmitted = false;
+  colors = [
+    'red',
+    'blue',
+    'green',
+    'pink',
+    'yellow',
+    'grey'
+  ]
+  cars: any;
+  carName: string = '';
+  appTitle;
 
-  answers = [{
-    type: 'yes',
-    text: 'Да'
-  }, {
-    type: 'no',
-    text: 'Нет'
-  }];
+  constructor(private carsService: CarsService) {
+  }
 
-  form: FormGroup;
-  charsCount = 5;
-
+  getRandColor() {
+    const num = Math.round(Math.random() * (this.colors.length - 1))
+    return this.colors[num];
+  }
 
   ngOnInit() {
-    this.form = new FormGroup({
-      user: new FormGroup({
-        email: new FormControl('', [Validators.required, Validators.email], this.checkForEmail),
-        password: new FormControl('', [Validators.required, this.checkForLength.bind(this)]),
-      }),
-      country: new FormControl('ua'),
-      answer: new FormControl('no')
-    });
+      this.appTitle = this.carsService.getAppTitle()
   }
 
-  // submitForm() {
-  //   this.isSubmitted = true;
-  //   console.log('add form', this.form);
-  //   this.formData = this.form.value;
-  //   this.form.reset();
-  // }
-  //
-  //
-  // addRandEmail() {
-  //   const randEmail = 'btn@gm.com';
-  //   // this.form.setValue({
-  //   //   user: {
-  //   //     password: '',
-  //   //     email: randEmail
-  //   //   },
-  //   //   country: '',
-  //   //   answer: ''
-  //   // });
-  //   this.form.form.patchValue({
-  //     user: {email: randEmail}
-  //   })
-  // }
-
-
-  onSubmit() {
-    console.log('Submit', this.form);
+  loadCars() {
+    this.cars = this.carsService.getCars()
   }
 
-
-  checkForLength(control: FormControl) {
-    if (control.value.length <= this.charsCount) {
-      return {
-        'lengthError': true
-      }
-    }
-    return null
+  addCar() {
+    this.carsService
+      .addCar(this.carName)
+      .subscribe((car: Cars) => {
+        this.cars.push(car)
+      })
+    this.carName = '';
   }
 
-  checkForEmail(control: FormControl): Promise<any> {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (control.value === 'test@mail.ru') {
-          resolve({
-            'emailIsUsed': true
-          });
-        } else {
-          resolve(null)
-        }
-      }, 3000)
-    })
+  setNewColor(car: Cars) {
+    this.carsService.changeColor(car, this.getRandColor())
+      .subscribe((data) => {
+        console.log(data);
+      })
   }
 
+  deleteCar(car: Cars) {
+    this.carsService.deleteCar(car)
+      .subscribe((data) => {
+        this.cars = this.cars.filter(c => c.id != car.id )
+      })
+  }
 }

@@ -1,0 +1,17 @@
+{
+  "title": {
+    "value": "Менеджер машин"
+  },
+  "cars": [
+    {
+      "name": "BMW",
+      "color": "green",
+      "id": 2
+    },
+    {
+      "name": "LADA",
+      "color": "green",
+      "id": 3
+    }
+  ]
+}
